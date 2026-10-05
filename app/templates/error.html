@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+{% block main %}
+<div class="container error-page">
+  <div class="error-code">{{ code }}</div>
+  <h1>{{ 'Page not found' if code == 404 else ('Not allowed' if code == 403 else 'Something went wrong') }}</h1>
+  <p>{{ message or "Something went wrong. Please try again." }}</p>
+  <a class="btn" href="{{ url_for('main.index') }}">Back to the home page</a>
+</div>
+{% endblock %}

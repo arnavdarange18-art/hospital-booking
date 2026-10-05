@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Create an account{% endblock %}
+{% block main %}
+<section class="auth">
+  <div class="auth-form-side">
+    <div class="auth-form">
+      <h1>Create your account</h1>
+      <p class="sub">It takes under a minute. You can book right after.</p>
+      <form method="post" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" type="text" name="name" value="{{ form.get('name', '') }}" maxlength="100" autocomplete="name" required autofocus>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" value="{{ form.get('email', '') }}" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" type="password" name="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+            <button type="button" class="password-toggle" data-toggle-password="password" aria-label="Show password" aria-pressed="false">
+              <svg class="icon" data-eye aria-hidden="true"><use href="#i-eye"/></svg>
+              <svg class="icon" data-eye-off aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+            </button>
+          </div>
+          <span class="field-hint">At least 8 characters.</span>
+        </div>
+        <button type="submit" class="btn btn--block btn--lg">Create account</button>
+      </form>
+      <p class="auth-switch">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+    </div>
+  </div>
+  <aside class="auth-aside">
+    <h2>Skip the phone calls and the queue.</h2>
+    <ul class="ticks">
+      <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Search doctors by name, specialization or department.</li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>See open times before you book.</li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Get a notification for every change to a booking.</li>
+    </ul>
+  </aside>
+</section>
+{% endblock %}

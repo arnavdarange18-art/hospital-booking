@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}Hospital Appointments{% endblock %}</title>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/bricolage-grotesque-latin-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/figtree-latin-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+{% include "partials/icons.html" %}
+{% set ep = request.endpoint or '' %}
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="{{ url_for('main.index') }}">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-calendar-check"/></svg></span>
+      Hospital Appointments
+    </a>
+
+    {% if current_user.is_authenticated %}
+    <nav class="main-nav" aria-label="Main">
+      {% if current_user.role == 'patient' %}
+        <a class="nav-link" href="{{ url_for('patient.doctors') }}" {% if ep in ('patient.doctors', 'patient.doctor_detail') %}aria-current="page"{% endif %}>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg>Find a doctor</a>
+        <a class="nav-link" href="{{ url_for('patient.appointments') }}" {% if ep in ('patient.appointments', 'patient.reschedule') %}aria-current="page"{% endif %}>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>My appointments</a>
+      {% elif current_user.role == 'doctor' %}
+        <a class="nav-link" href="{{ url_for('doctor.schedule') }}" {% if ep == 'doctor.schedule' %}aria-current="page"{% endif %}>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>Schedule</a>
+        <a class="nav-link" href="{{ url_for('doctor.availability') }}" {% if ep == 'doctor.availability' %}aria-current="page"{% endif %}>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-clock"/></svg>Working hours</a>
+      {% elif current_user.role == 'admin' %}
+        <a class="nav-link" href="{{ url_for('admin.dashboard') }}" {% if ep == 'admin.dashboard' %}aria-current="page"{% endif %}>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-users"/></svg>People</a>
+        <a class="nav-link" href="{{ url_for('admin.new_doctor') }}" {% if ep == 'admin.new_doctor' %}aria-current="page"{% endif %}>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-plus"/></svg>Add a doctor</a>
+      {% endif %}
+    </nav>
+
+    <div class="header-actions">
+      <a class="bell" href="{{ url_for('main.notifications') }}" aria-label="Notifications{% if unread_count %}, {{ unread_count }} unread{% endif %}" {% if ep == 'main.notifications' %}aria-current="page"{% endif %}>
+        <svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg>
+        {% if unread_count %}<span class="count" aria-hidden="true">{{ unread_count if unread_count < 10 else '9+' }}</span>{% endif %}
+      </a>
+      <details class="user-menu">
+        <summary aria-label="Account menu">
+          <span class="user-chip">
+            <span class="avatar avatar--sm {{ current_user.id|avatar_class }}">{{ current_user.name|initials }}</span>
+            <span class="user-name">{{ current_user.name.split()[0] }}</span>
+          </span>
+        </summary>
+        <div class="menu-panel">
+          <div class="menu-who">
+            <strong>{{ current_user.name }}</strong>
+            <span>{{ current_user.email }}</span>
+          </div>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="menu-item">
+              <svg class="icon icon--sm" aria-hidden="true"><use href="#i-log-out"/></svg>Log out
+            </button>
+          </form>
+        </div>
+      </details>
+    </div>
+    {% else %}
+    <div class="header-actions auth-links">
+      <a class="btn btn--ghost btn--sm" href="{{ url_for('auth.login') }}">Log in</a>
+      <a class="btn btn--sm" href="{{ url_for('auth.register') }}">Create account</a>
+    </div>
+    {% endif %}
+  </div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="toasts" role="region" aria-label="Notifications">
+    {% for category, message in messages %}
+    <div class="toast {{ 'toast--error' if category == 'error' else '' }}" data-toast role="{{ 'alert' if category == 'error' else 'status' }}">
+      <svg class="icon" aria-hidden="true"><use href="#{{ 'i-alert' if category == 'error' else 'i-check' }}"/></svg>
+      <p>{{ message }}</p>
+      <button type="button" class="toast-close" data-toast-close aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main id="main" tabindex="-1">
+  {% block main %}
+  <div class="container page">
+    {% block content %}{% endblock %}
+  </div>
+  {% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>Hospital Appointments</span>
+    <span>All times are shown in the clinic's local time.</span>
+  </div>
+</footer>
+</body>
+</html>

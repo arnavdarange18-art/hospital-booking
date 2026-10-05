@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}People{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>People</h1>
+    <p>Everyone with an account, and how busy the clinic is.</p>
+  </div>
+  <a class="btn" href="{{ url_for('admin.new_doctor') }}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-plus"/></svg>Add a doctor</a>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg></span>
+    <div><div class="stat-num">{{ stats.patients }}</div><div class="stat-label">{{ 'Patient' if stats.patients == 1 else 'Patients' }}</div></div>
+  </div>
+  <div class="stat">
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-heart-pulse"/></svg></span>
+    <div><div class="stat-num">{{ stats.doctors }}</div><div class="stat-label">{{ 'Doctor' if stats.doctors == 1 else 'Doctors' }}</div></div>
+  </div>
+  <div class="stat">
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-calendar-check"/></svg></span>
+    <div><div class="stat-num">{{ stats.upcoming }}</div><div class="stat-label">Upcoming {{ 'appointment' if stats.upcoming == 1 else 'appointments' }}</div></div>
+  </div>
+</div>
+
+<div class="table-tools">
+  <div class="chips" role="group" aria-label="Filter by role">
+    <button type="button" class="chip is-on" data-role-filter="all" aria-pressed="true">All</button>
+    <button type="button" class="chip" data-role-filter="patient" aria-pressed="false">Patients</button>
+    <button type="button" class="chip" data-role-filter="doctor" aria-pressed="false">Doctors</button>
+    <button type="button" class="chip" data-role-filter="admin" aria-pressed="false">Admins</button>
+  </div>
+  <div class="search">
+    <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+    <input type="search" placeholder="Search name or email" aria-label="Search people" data-user-search>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table data-user-table>
+    <thead>
+      <tr><th>Person</th><th>Role</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr data-role="{{ user.role }}">
+        <td>
+          <div class="user-cell">
+            <span class="avatar avatar--sm {{ user.id|avatar_class }}" aria-hidden="true">{{ user.name|initials }}</span>
+            <div>
+              {{ user.name }}
+              <div class="cell-sub">{{ user.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ user.role|capitalize }}</td>
+        <td><span class="badge badge--{{ 'active' if user.active else 'deactivated' }}">{{ 'Active' if user.active else 'Deactivated' }}</span></td>
+        <td>
+          {% if user.id != current_user.id %}
+          <form method="post" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" class="inline"
+                {% if user.active %}data-confirm="Deactivate {{ user.name }}? They will no longer be able to log in."{% endif %}>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn--sm {{ 'btn--danger' if user.active else 'btn--ghost' }}">{{ 'Deactivate' if user.active else 'Activate' }}<span class="visually-hidden"> {{ user.name }}</span></button>
+          </form>
+          {% else %}
+          <span class="muted">You</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="empty" data-no-match hidden>
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-search"/></svg>
+    <h3>No one matches</h3>
+    <p>Try a different name or choose another role.</p>
+  </div>
+</div>
+{% endblock %}

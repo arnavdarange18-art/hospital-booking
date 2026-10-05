@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block main %}
+<section class="auth">
+  <div class="auth-form-side">
+    <div class="auth-form">
+      <h1>Welcome back</h1>
+      <p class="sub">Log in to manage your appointments.</p>
+      <form method="post" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" value="{{ form.get('email', '') }}" autocomplete="email" required autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" type="password" name="password" autocomplete="current-password" required>
+            <button type="button" class="password-toggle" data-toggle-password="password" aria-label="Show password" aria-pressed="false">
+              <svg class="icon" data-eye aria-hidden="true"><use href="#i-eye"/></svg>
+              <svg class="icon" data-eye-off aria-hidden="true" hidden><use href="#i-eye-off"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn--block btn--lg">Log in</button>
+      </form>
+      <p class="auth-switch">New here? <a href="{{ url_for('auth.register') }}">Create a patient account</a></p>
+    </div>
+  </div>
+  <aside class="auth-aside">
+    <h2>Your appointments, in one place.</h2>
+    <ul class="ticks">
+      <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>See upcoming visits and past ones.</li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Reschedule or cancel when plans change.</li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Doctors and admins sign in here too.</li>
+    </ul>
+  </aside>
+</section>
+{% endblock %}

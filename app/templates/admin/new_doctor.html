@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Add a doctor{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('admin.dashboard') }}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-left"/></svg>People</a>
+
+<div class="page-head">
+  <div>
+    <h1>Add a doctor</h1>
+    <p>The doctor logs in with this email and password, then sets their own working hours.</p>
+  </div>
+</div>
+
+<section class="panel">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" type="text" name="name" value="{{ form.get('name', '') }}" maxlength="100" required autofocus>
+        <span class="field-hint">Shown as &ldquo;Dr.&rdquo; plus this name, so leave the title out.</span>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" value="{{ form.get('email', '') }}" autocomplete="off" required>
+      </div>
+      <div class="field">
+        <label for="password">Temporary password</label>
+        <input id="password" type="password" name="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+        <span class="field-hint">At least 8 characters. Share it with the doctor securely.</span>
+      </div>
+      <div class="field">
+        <label for="specialization">Specialization</label>
+        <input id="specialization" type="text" name="specialization" value="{{ form.get('specialization', '') }}" maxlength="100" placeholder="Cardiology" required>
+      </div>
+      <div class="field">
+        <label for="department">Department</label>
+        <input id="department" type="text" name="department" value="{{ form.get('department', '') }}" maxlength="100" placeholder="Heart Care" required>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn--lg">Create doctor account</button>
+      <a class="btn btn--lg btn--ghost" href="{{ url_for('admin.dashboard') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

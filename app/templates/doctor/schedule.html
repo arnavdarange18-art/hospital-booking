@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ 'Today' if day == today else day.strftime('%A') }}, {{ day.day }} {{ day.strftime('%B %Y') }}</h1>
+    {% if rows %}<p>{{ booked }} booked, {{ open_slots }} open</p>{% else %}<p>Day off</p>{% endif %}
+  </div>
+  <nav class="day-nav" aria-label="Change day">
+    <a class="round-btn" href="{{ url_for('doctor.schedule', date=prev_day.isoformat()) }}" aria-label="Previous day"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-left"/></svg></a>
+    <a class="btn btn--ghost btn--sm" href="{{ url_for('doctor.schedule') }}">Today</a>
+    <a class="round-btn" href="{{ url_for('doctor.schedule', date=next_day.isoformat()) }}" aria-label="Next day"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+    <form method="get" class="date-jump">
+      <input type="date" name="date" value="{{ day.isoformat() }}" aria-label="Go to date" data-autosubmit>
+      <button type="submit" class="btn btn--ghost btn--sm">Go</button>
+    </form>
+  </nav>
+</div>
+
+{% if rows %}
+<div class="timeline">
+  {% for row in rows %}
+  {% set a = row.appointment %}
+  <div class="tl-row {{ 'tl-booked' if a else 'tl-open' }}">
+    <div class="tl-time">{{ row.start|tm }}</div>
+    <div class="tl-body">
+      {% if a %}
+      <div class="tl-patient">
+        <span class="avatar avatar--sm {{ a.patient_id|avatar_class }}" aria-hidden="true">{{ a.patient.name|initials }}</span>
+        <div>
+          <strong>{{ a.patient.name }}</strong>
+          <span>{{ row.start|trange(row.end) }}</span>
+        </div>
+      </div>
+      <div class="tl-actions">
+        {% if a.status == 'completed' %}
+        <span class="badge badge--completed"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-check"/></svg>Completed</span>
+        {% else %}
+        {% if a.start_time <= now %}
+        <form method="post" action="{{ url_for('doctor.complete', appointment_id=a.id) }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn--sm">Mark completed</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('doctor.cancel', appointment_id=a.id) }}" class="inline" data-confirm="Cancel {{ a.patient.name }}'s appointment at {{ a.start_time|tm }}? They will be notified.">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn--danger btn--sm">Cancel</button>
+        </form>
+        {% endif %}
+      </div>
+      {% else %}
+      <span>Open</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if cancelled %}
+<h2 class="section-title">Cancelled on this day</h2>
+<ul class="cancelled-list">
+  {% for a in cancelled %}
+  <li>{{ a.start_time|tm }} with {{ a.patient.name }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% else %}
+<div class="list">
+  <div class="empty">
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-calendar"/></svg>
+    <h3>No working hours on {{ WEEKDAYS[day.weekday()] }}s</h3>
+    <p>Patients can't book you on this day. Add working hours if you want to see appointments here.</p>
+    <a class="btn" href="{{ url_for('doctor.availability') }}">Set working hours</a>
+  </div>
+</div>
+{% if cancelled %}
+<h2 class="section-title">Cancelled on this day</h2>
+<ul class="cancelled-list">
+  {% for a in cancelled %}
+  <li>{{ a.start_time|tm }} with {{ a.patient.name }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+{% endblock %}

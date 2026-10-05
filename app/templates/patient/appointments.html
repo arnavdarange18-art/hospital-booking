@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}My appointments{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My appointments</h1>
+    <p>Your upcoming visits and everything before them.</p>
+  </div>
+  <a class="btn" href="{{ url_for('patient.doctors') }}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-plus"/></svg>Book an appointment</a>
+</div>
+
+<h2 class="section-title">Upcoming</h2>
+{% if upcoming %}
+  {% for a in upcoming %}
+  <article class="stub">
+    <div class="stub-date" aria-hidden="true">
+      <span class="wd">{{ a.start_time.strftime('%a') }}</span>
+      <span class="dn">{{ a.start_time.day }}</span>
+      <span class="mo">{{ a.start_time.strftime('%b') }}</span>
+    </div>
+    <div class="stub-body">
+      <span class="stub-time"><span class="visually-hidden">{{ a.start_time.strftime('%A') }} {{ a.start_time.day }} {{ a.start_time.strftime('%B') }}, </span>{{ a.start_time|trange(a.end_time) }}</span>
+      <span class="stub-doc">Dr. {{ a.doctor.user.name }}</span>
+      <span class="stub-sub">{{ a.doctor.specialization }}, {{ a.doctor.department }}</span>
+    </div>
+    <div class="stub-actions">
+      <a class="btn btn--ghost btn--sm" href="{{ url_for('patient.reschedule', appointment_id=a.id) }}">Reschedule</a>
+      <form method="post" action="{{ url_for('patient.cancel', appointment_id=a.id) }}" data-confirm="Cancel your appointment with Dr. {{ a.doctor.user.name }} on {{ a.start_time|dt }}?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn--danger btn--sm">Cancel</button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+{% else %}
+<div class="list">
+  <div class="empty">
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-calendar"/></svg>
+    <h3>No upcoming appointments</h3>
+    <p>Find a doctor, pick a time and it will show up here.</p>
+    <a class="btn" href="{{ url_for('patient.doctors') }}">Find a doctor</a>
+  </div>
+</div>
+{% endif %}
+
+{% if history %}
+<h2 class="section-title">History</h2>
+<div class="history">
+  {% for a in history %}
+  <div class="history-row">
+    <span class="history-when">{{ a.start_time|dt }}</span>
+    <strong>Dr. {{ a.doctor.user.name }}</strong>
+    <span class="badge badge--{{ a.status }}">{{ a.status|capitalize }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

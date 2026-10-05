@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Notifications</h1>
+    <p>Updates about your appointments.</p>
+  </div>
+  {% if unread_count %}
+  <form method="post" action="{{ url_for('main.mark_read') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn--ghost">Mark all as read</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if items %}
+<div class="notif-list">
+  {% for item in items %}
+  <div class="notif {{ '' if item.is_read else 'is-unread' }}">
+    <span class="notif-icon"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar-check"/></svg></span>
+    <p>{% if not item.is_read %}<span class="unread-dot" role="img" aria-label="Unread"></span>{% endif %}{{ item.message }}</p>
+    <span class="notif-time">{{ item.created_at|ago }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list">
+  <div class="empty">
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-bell"/></svg>
+    <h3>You're all caught up</h3>
+    <p>Booking confirmations, reschedules and cancellations will show up here.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

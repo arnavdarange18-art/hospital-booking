@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Book a doctor's appointment online{% endblock %}
+{% block main %}
+<section class="container hero">
+  <div>
+    <h1>Book your doctor in a few taps.</h1>
+    <p class="lead">Pick a doctor, choose a free time and get a confirmed appointment. If plans change, reschedule or cancel from the same page.</p>
+    <div class="hero-actions">
+      <a class="btn btn--lg" href="{{ url_for('auth.register') }}">Create an account</a>
+      <a class="btn btn--lg btn--ghost" href="{{ url_for('auth.login') }}">Log in</a>
+    </div>
+    <p class="hero-note">Patients register themselves. Doctor accounts are created by the clinic's admin.</p>
+  </div>
+
+  <div class="preview" aria-hidden="true">
+    <div class="preview-card">
+      <div class="preview-doc">
+        <span class="avatar">MI</span>
+        <div>
+          <strong>Dr. Meera Iyer</strong>
+          <span>Cardiology</span>
+        </div>
+      </div>
+      <div class="mini-days">
+        {% for d in sample_days %}
+        <div class="mini-day {{ 'is-on' if loop.first else '' }}"><small>{{ d.strftime('%a') }}</small>{{ d.day }}</div>
+        {% endfor %}
+      </div>
+      <div class="slots">
+        <span class="slot-demo">9:00 AM</span>
+        <span class="slot-demo">9:30 AM</span>
+        <span class="slot-demo is-picked">10:00 AM</span>
+        <span class="slot-demo">10:30 AM</span>
+        <span class="slot-demo">11:00 AM</span>
+        <span class="slot-demo">11:30 AM</span>
+      </div>
+    </div>
+    <div class="stub">
+      <div class="stub-date">
+        <span class="wd">{{ sample_days[0].strftime('%a') }}</span>
+        <span class="dn">{{ sample_days[0].day }}</span>
+        <span class="mo">{{ sample_days[0].strftime('%b') }}</span>
+      </div>
+      <div class="stub-body">
+        <span class="stub-time">10:00 &ndash; 10:30 AM</span>
+        <span class="stub-doc">Dr. Meera Iyer</span>
+        <span class="stub-sub">Cardiology</span>
+      </div>
+      <div class="stub-actions">
+        <span class="badge badge--confirmed"><svg class="icon icon--sm"><use href="#i-check"/></svg>Confirmed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container how">
+  <h2>How booking works</h2>
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <h3>Find a doctor</h3>
+      <p>Search by name, specialization or department, and see each doctor's next free time.</p>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <h3>Choose a time</h3>
+      <p>Open times are listed by day. A time can only be booked once, so what you see as free is free.</p>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <h3>Get confirmed</h3>
+      <p>Your booking appears under My appointments and in your notifications. Reschedule or cancel from there.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="band">
+  <div class="container band-grid">
+    <div>
+      <h2>For doctors</h2>
+      <ul class="ticks">
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Set weekly working hours and the length of each visit.</li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>See each day as a timeline of booked and open slots.</li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Mark visits completed, or cancel them and free the slot.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>For administrators</h2>
+      <ul class="ticks">
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Create doctor accounts with their specialization and department.</li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Deactivate accounts that should no longer sign in.</li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Keep an eye on patients, doctors and upcoming appointments.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

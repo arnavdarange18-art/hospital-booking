@@ -1,0 +1,70 @@
+{#
+  Date strip plus slot buttons, shared by booking and rescheduling.
+  Arguments: action (form URL), hidden (dict of extra hidden fields), who (label for the summary),
+  picker (context from routes/patient.py), submit_label.
+#}
+{% macro slot_picker(action, hidden, who, picker, submit_label) %}
+<form method="post" action="{{ action }}" class="picker" data-picker data-who="{{ who }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for name, value in hidden.items() %}
+  <input type="hidden" name="{{ name }}" value="{{ value }}">
+  {% endfor %}
+
+  <div class="strip-wrap">
+    {% if picker.prev_url %}
+    <a class="round-btn" href="{{ picker.prev_url }}" aria-label="Earlier days"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-left"/></svg></a>
+    {% else %}
+    <span class="round-btn" aria-hidden="true"><svg class="icon icon--sm"><use href="#i-chevron-left"/></svg></span>
+    {% endif %}
+
+    <div class="strip" role="list" aria-label="Choose a day">
+      {% for item in picker.strip %}
+      <a role="listitem" class="day {{ 'is-selected' if item.date == picker.day else '' }} {{ 'is-empty' if not item.free else '' }}"
+         href="{{ item.url }}" {% if item.date == picker.day %}aria-current="date"{% endif %}
+         aria-label="{{ item.date.strftime('%A') }} {{ item.date.day }} {{ item.date.strftime('%B') }}, {{ item.free }} open">
+        <span class="day-name">{{ 'Today' if item.date == picker.today else item.date.strftime('%a') }}</span>
+        <span class="day-num">{{ item.date.day }}</span>
+        <span class="day-free">{{ item.free ~ ' open' if item.free else 'none' }}</span>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if picker.next_url %}
+    <a class="round-btn" href="{{ picker.next_url }}" aria-label="Later days"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-right"/></svg></a>
+    {% else %}
+    <span class="round-btn" aria-hidden="true"><svg class="icon icon--sm"><use href="#i-chevron-right"/></svg></span>
+    {% endif %}
+  </div>
+
+  <h2 class="picker-day">{{ picker.day.strftime('%A') }}, {{ picker.day.day }} {{ picker.day.strftime('%B') }}</h2>
+  <p class="picker-sub">{{ picker.total ~ ' open times' if picker.total != 1 else '1 open time' }}</p>
+
+  {% for label, slots in picker.groups %}
+  <fieldset class="slot-group">
+    <legend>{{ label }} <small>{{ slots|length }} open</small></legend>
+    <div class="slots">
+      {% for start, end in slots %}
+      <label class="slot">
+        <input type="radio" name="start" value="{{ start.strftime('%Y-%m-%dT%H:%M') }}"
+               data-label="{{ start.strftime('%A') }} {{ start.day }} {{ start.strftime('%B') }}, {{ start|tm }}" required>
+        <span>{{ start|tm }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  {% else %}
+  <div class="empty">
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-calendar"/></svg>
+    <h3>No open times on this day</h3>
+    <p>Pick another day. Days with open times show how many are left.</p>
+  </div>
+  {% endfor %}
+
+  {% if picker.groups %}
+  <div class="confirm-bar">
+    <p data-summary aria-live="polite">Choose a time to continue.</p>
+    <button type="submit" class="btn" data-submit>{{ submit_label }}</button>
+  </div>
+  {% endif %}
+</form>
+{% endmacro %}

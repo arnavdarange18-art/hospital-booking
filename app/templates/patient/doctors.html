@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Find a doctor{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Find a doctor</h1>
+    <p>Search by name, specialization or department.</p>
+  </div>
+</div>
+
+<div class="toolbar">
+  <form method="get" role="search">
+    <div class="search">
+      <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="search" name="q" value="{{ query }}" placeholder="Try &ldquo;cardiology&rdquo; or a doctor's name" aria-label="Search doctors">
+    </div>
+  </form>
+  {% if specializations %}
+  <div class="chips" aria-label="Filter by specialization">
+    <a class="chip" href="{{ url_for('patient.doctors') }}" {% if not query %}aria-current="true"{% endif %}>All</a>
+    {% for name in specializations %}
+    <a class="chip" href="{{ url_for('patient.doctors', q=name) }}" {% if query|lower == name|lower %}aria-current="true"{% endif %}>{{ name }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% if doctors %}
+<div class="list">
+  {% for doctor in doctors %}
+  {% set next_slot = next_slots[doctor.id] %}
+  <div class="doc-row">
+    <span class="avatar {{ doctor.id|avatar_class }}" aria-hidden="true">{{ doctor.user.name|initials }}</span>
+    <div>
+      <h2 class="doc-name">Dr. {{ doctor.user.name }}</h2>
+      <div class="doc-meta">
+        <span>{{ doctor.specialization }}</span>
+        <span class="tag">{{ doctor.department }}</span>
+      </div>
+    </div>
+    <div class="doc-side">
+      {% if next_slot %}
+      <span class="next-free"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-clock"/></svg>Next free: {{ next_slot|when }}</span>
+      {% else %}
+      <span class="next-free next-free--none">No open times in the next 2 weeks</span>
+      {% endif %}
+      <a class="btn btn--sm" href="{{ url_for('patient.doctor_detail', doctor_id=doctor.id) }}">View times<span class="visually-hidden"> for Dr. {{ doctor.user.name }}</span></a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list">
+  <div class="empty">
+    <svg class="icon icon--lg" aria-hidden="true"><use href="#i-search"/></svg>
+    <h3>No doctors match &ldquo;{{ query }}&rdquo;</h3>
+    <p>Check the spelling, or try a specialization such as general medicine.</p>
+    <a class="btn btn--ghost" href="{{ url_for('patient.doctors') }}">Show all doctors</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

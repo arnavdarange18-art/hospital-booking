@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Working hours{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Working hours</h1>
+    <p>Patients can only book inside these periods. Each period is cut into visits of the length you choose.</p>
+  </div>
+</div>
+
+{% if not windows %}
+<div class="current-booking">
+  <svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+  You have no working hours yet, so patients can't book you. Add your first period below.
+</div>
+{% endif %}
+
+<div class="week">
+  {% for name in WEEKDAYS %}
+  {% set day_windows = windows|selectattr('weekday', 'equalto', loop.index0)|list %}
+  <div class="week-row">
+    <span class="week-day">{{ name }}</span>
+    <div>
+      {% for w in day_windows %}
+      <span class="window-chip">
+        {{ w.start_time|tm }} &ndash; {{ w.end_time|tm }} <small>{{ w.slot_minutes }} min visits</small>
+        <form method="post" action="{{ url_for('doctor.delete_availability', window_id=w.id) }}" class="inline" data-confirm="Remove {{ name }} {{ w.start_time|tm }} &ndash; {{ w.end_time|tm }}? Existing bookings are not cancelled.">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" aria-label="Remove {{ name }} {{ w.start_time|tm }} to {{ w.end_time|tm }}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </form>
+      </span>
+      {% else %}
+      <span class="week-off">Not working</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<section class="panel add-hours">
+  <h2>Add a working period</h2>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid">
+      <div class="field">
+        <label for="weekday">Day</label>
+        <select id="weekday" name="weekday">
+          {% for name in WEEKDAYS %}<option value="{{ loop.index0 }}">{{ name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="start_time">From</label>
+        <input id="start_time" type="time" name="start_time" value="09:00" required>
+      </div>
+      <div class="field">
+        <label for="end_time">To</label>
+        <input id="end_time" type="time" name="end_time" value="13:00" required>
+      </div>
+      <div class="field">
+        <label for="slot_minutes">Visit length</label>
+        <select id="slot_minutes" name="slot_minutes">
+          {% for minutes in (10, 15, 20, 30, 45, 60) %}
+          <option value="{{ minutes }}" {% if minutes == 30 %}selected{% endif %}>{{ minutes }} minutes</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn">Add period</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

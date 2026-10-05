@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "partials/slot_picker.html" import slot_picker %}
+{% block title %}Dr. {{ doctor.user.name }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('patient.doctors') }}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-left"/></svg>All doctors</a>
+
+<div class="profile-layout">
+  <aside class="profile">
+    <span class="avatar avatar--lg {{ doctor.id|avatar_class }}" aria-hidden="true">{{ doctor.user.name|initials }}</span>
+    <h1>Dr. {{ doctor.user.name }}</h1>
+    <div class="doc-meta">
+      <span>{{ doctor.specialization }}</span>
+      <span class="tag">{{ doctor.department }}</span>
+    </div>
+
+    <h2 class="hours-title">Working hours</h2>
+    {% if hours %}
+    <ul class="hours">
+      {% for w in hours %}
+      <li><span>{{ WEEKDAYS[w.weekday][:3] }}</span><span>{{ w.start_time|tm }} &ndash; {{ w.end_time|tm }}, {{ w.slot_minutes }} min visits</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">Dr. {{ doctor.user.name }} has not set working hours yet, so there is nothing to book.</p>
+    {% endif %}
+  </aside>
+
+  <section aria-label="Book an appointment">
+    {{ slot_picker(
+        url_for('patient.book'),
+        {'doctor_id': doctor.id},
+        'Dr. ' ~ doctor.user.name,
+        picker,
+        'Confirm booking') }}
+  </section>
+</div>
+{% endblock %}
