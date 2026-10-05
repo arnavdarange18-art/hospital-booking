@@ -113,7 +113,7 @@ in-memory SQLite. CI sets it to a MySQL service container.
 To turn it on:
 
 1. Create a GitHub repository and push the project (`git init`, `git add .`, `git commit`, `git remote add origin ...`, `git push -u origin main`).
-2. Host the app (for example a Render web service with build command `pip install -r requirements.txt` and start command `gunicorn run:app`). Set `SECRET_KEY`, `DATABASE_URL` and `SESSION_COOKIE_SECURE=1` as environment variables on the host, not in the repo.
+2. Host the app (for example a Render web service with build command `pip install -r requirements.txt && flask --app run init-db` and start command `gunicorn run:app`). Set `SECRET_KEY`, `DATABASE_URL` and `SESSION_COOKIE_SECURE=1` as environment variables on the host, not in the repo.
 3. Add the host's deploy hook URL as a repository secret named `RENDER_DEPLOY_HOOK_URL` (Settings → Secrets and variables → Actions). Using another host? Replace the last step of the `deploy` job.
 4. Optional but recommended: Settings → Branches → add a rule for `main` that requires the `lint`, `security` and `test` checks to pass before merging.
 
