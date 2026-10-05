@@ -76,6 +76,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deployment
-        # Example for Render: add the service's deploy hook URL as a repository secret
-        # named RENDER_DEPLOY_HOOK_URL. Replace this step for PythonAnywhere, AWS, etc.
         run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
